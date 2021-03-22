@@ -53,9 +53,9 @@ public class OpenFLIM_GOI_main implements MenuPlugin, SciJavaPlugin{
     public void onPluginSelected() {
         if(frame_ == null){
             frame_ = new OpenFLIM_GOI_hostframe(gui_);
-            frame_.setVisible(true);
         }
         frame_.setparent(this);
+        frame_.setVisible(true);
         init = true;
     }
   

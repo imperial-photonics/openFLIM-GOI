@@ -35,6 +35,7 @@ import loci.formats.ImageWriter;
 import loci.formats.ome.OMEXMLMetadata;
 import loci.formats.services.OMEXMLServiceImpl;
 import mmcorej.CMMCore;
+import mmcorej.DeviceType;
 import mmcorej.DoubleVector;
 import ome.units.quantity.Length;
 import ome.xml.model.enums.DimensionOrder;
@@ -86,15 +87,17 @@ public class FLIM_OME_TIFF_writer {
         for (Integer delay:delays){
             int del = delays.indexOf(delay);
             core_.setProperty(del_dev, del_prop, delay);
-            core_.sleep((int)Math.round(2));//ms wait to settle
 
             long dim = core_.getImageWidth()*core_.getImageHeight();
             int[] accImg = new int[(int)dim];
             //Accumulation?
             int n_acc = 1;
+            core_.sleep((int)Math.round(2));//ms wait to settle
             for(int i=0;i<n_acc;i++){
                 core_.snapImage();
+                //core_.waitForDeviceType(DeviceType.CameraDevice);
                 Object img = core_.getImage();
+                
 //                gui_.getDisplayManager().show((Image) img);
                 //Frame accumulator
                 if (core_.getBytesPerPixel() == 2){

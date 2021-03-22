@@ -28,14 +28,7 @@ import MM2.openFLIM_GOI.Threads.Timer_display_thread;
 import MM2.openFLIM_GOI.Utilities.FLIM_OME_TIFF_writer;
 import MM2.openFLIM_GOI.Utilities.OpenFLIM_GOI_MM2_Utils;
 import com.google.common.eventbus.Subscribe;
-import com.google.gson.Gson;
-
-import ij.IJ;
-import ij.ImagePlus;
-import ij.process.ByteProcessor;
-import ij.process.FloatProcessor;
 import ij.process.ImageProcessor;
-import java.awt.Component;
 
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
@@ -44,9 +37,9 @@ import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JFrame;
@@ -57,23 +50,17 @@ import javax.swing.event.ChangeListener;
 import loci.formats.FormatException;
 
 import mmcorej.CMMCore;
-import mmcorej.StrVector;
 import org.micromanager.MenuPlugin;
+import org.micromanager.PropertyMap;
 import org.micromanager.Studio;
 import org.micromanager.acquisition.SequenceSettings;
 import org.micromanager.data.Coords;
 import org.micromanager.data.Datastore;
+import org.micromanager.data.Datastore.SaveMode;
 import org.micromanager.data.Image;
-import org.micromanager.data.ImageJConverter;
-import org.micromanager.data.RewritableDatastore;
-import org.micromanager.events.NewDisplayEvent;
-import org.micromanager.events.PropertiesChangedEvent;
-import org.micromanager.display.DisplayWindow;
-import org.micromanager.events.ExposureChangedEvent;
+import org.micromanager.data.Metadata;
+import org.micromanager.data.SummaryMetadata;
 import org.micromanager.events.PropertyChangedEvent;
-import org.micromanager.events.PropertiesChangedEvent;
-import org.micromanager.events.XYStagePositionChangedEvent;
-import static org.micromanager.internal.propertymap.NonPropertyMapJSONFormats.coords;
 
 //http://www.java2s.com/Code/Java/Chart/JFreeChartDualAxisDemo2.htm
 
@@ -147,7 +134,7 @@ public class OpenFLIM_GOI_hostframe extends javax.swing.JFrame {
                 @Override
                 public void windowClosing(WindowEvent we) {
                     if (true == confirmQuit()){
-                        kill_all_threads = true;
+                        kill_all_threads = true; // MAY NEED TO RECONSIDER THIS?
                         try {
                             Thread.sleep(1000);
                         } catch (InterruptedException ex) {
@@ -188,7 +175,7 @@ public class OpenFLIM_GOI_hostframe extends javax.swing.JFrame {
     
     private boolean confirmQuit() {
         int n = JOptionPane.showConfirmDialog(frame_,
-                "Quit: are you sure? YOU WILL NOT BE ABLE TO REOPEN THIS WINDOW", "Quit", JOptionPane.YES_NO_OPTION);
+                "Quit: are you sure? (This window can be reopened)", "Quit", JOptionPane.YES_NO_OPTION);
         if (n == JOptionPane.YES_OPTION) {
             return true;
         }
@@ -456,6 +443,29 @@ public class OpenFLIM_GOI_hostframe extends javax.swing.JFrame {
             System.out.println("Making: "+newdir.toString());
             boolean FLIM_snapped = FLIM_writer.FLIM_snap(tmp_ss.root, tmp_ss.prefix, DEL_DEV_ID, DEL_PROP_ID);
             System.out.println("Flim snapped? "+FLIM_snapped);
+//            //=======>DELETE BELOW
+//            Datastore new_ds = gui_.data().createRAMDatastore();
+//            Image snapped_img = gui_.acquisitions().snap().get(0);
+//            Metadata md = snapped_img.getMetadata();
+//            PropertyMap mud = md.getUserData();
+//            PropertyMap mpm = mud.copyBuilder().putString("Sunil", "Hello in metadata").build();
+//            Metadata nmd = md.copyBuilderPreservingUUID().userData(mpm).build();
+//            Image sic = snapped_img.copyWithMetadata(nmd);
+//            SummaryMetadata sm = new_ds.getSummaryMetadata();
+//            PropertyMap UD = sm.getUserData();
+//            PropertyMap.Builder UDB = UD.copyBuilder().putString("Jonny", "Hello");
+//            PropertyMap built_UD = UDB.build();
+//            SummaryMetadata.Builder smb = sm.copyBuilder();
+//            SummaryMetadata built_sm = smb.userData(built_UD).build();
+//            new_ds.setSummaryMetadata(built_sm);
+//            new_ds.putImage(sic);
+//            String uniqueSaveDirectory = gui_.data().getUniqueSaveDirectory(tmp_ss.root);
+//            new_ds.setSavePath(uniqueSaveDirectory);
+//            new_ds.freeze();
+//            String wtf = uniqueSaveDirectory;
+//            new_ds.save(Datastore.SaveMode.MULTIPAGE_TIFF, wtf);
+//            new_ds.close();
+//            //<===========DELETE
         } catch (FormatException ex) {
             Logger.getLogger(OpenFLIM_GOI_hostframe.class.getName()).log(Level.SEVERE, null, ex);
         } catch (IOException ex) {
